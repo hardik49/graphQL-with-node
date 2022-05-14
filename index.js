@@ -1,10 +1,15 @@
 import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
+import cors from 'cors';
 import schema from './src/schema/schema';
 import appConfig from './src/config/config'
 import mongoose from 'mongoose';
 const { mongoURI } = require('./src/config/db');
 const app = express();
+
+app.use(cors({
+  origin: '*',
+}));
 
 mongoose.connect(mongoURI);
 mongoose.connection.once('open', () => {

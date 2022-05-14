@@ -1,4 +1,7 @@
-import { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLList } from "graphql";
+import {
+  GraphQLID, GraphQLObjectType, GraphQLString,
+  GraphQLSchema, GraphQLList, GraphQLNonNull
+} from "graphql";
 import Owner from "../models/owner";
 import Vehicle from "../models/vehicle";
 
@@ -17,7 +20,7 @@ const VehicleType = new GraphQLObjectType({
     owner: {
       type: OwnerType,
       resolve(parent, args) {
-        // return Owner.findById(parent.ownerId);
+        return Owner.findById(parent.ownerId);
       }
     },
   }),
@@ -38,7 +41,7 @@ const OwnerType = new GraphQLObjectType({
     vehicles: {
       type: new GraphQLList(VehicleType),
       resolve(parent, args) {
-        // return Vehicle.find({ ownerId: parent.id });
+        return Vehicle.find({ ownerId: parent.id });
       }
     },
   }),
@@ -48,18 +51,30 @@ const OwnerType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    employee: {
+    vehicle: {
       type: VehicleType,
-      args: { id: { type: GraphQLString } },
+      args: { modelName: { type: GraphQLString } },
       resolve(parent, args) {
-        // get data from db or any other source
+        return Vehicle.findOne({ modelName: args.modelName });
       }
     },
     owner: {
       type: OwnerType,
-      args: { id: { type: GraphQLString } },
+      args: { name: { type: GraphQLString } },
       resolve(parent, args) {
-        // get data from db or any other source
+        return Owner.findOne({ name: args.name });
+      }
+    },
+    vehicles: {
+      type: new GraphQLList(VehicleType),
+      resolve(parent, args) {
+        return Vehicle.find({});
+      }
+    },
+    owners: {
+      type: new GraphQLList(OwnerType),
+      resolve(parent, args) {
+        return Owner.find({});
       }
     },
   },
@@ -71,7 +86,8 @@ const Mutation = new GraphQLObjectType({
     addOwner: {
       type: OwnerType,
       args: {
-        name: { type: GraphQLString },
+        // GraphQLNonNull makes the argument required
+        name: { type: new GraphQLNonNull(GraphQLString) },
         dob: { type: GraphQLString },
       },
       resolve(parent, args) {
@@ -82,7 +98,7 @@ const Mutation = new GraphQLObjectType({
     addVehicle: {
       type: VehicleType,
       args: {
-        modelName: { type: GraphQLString },
+        modelName: { type: new GraphQLNonNull(GraphQLString) },
         price: { type: GraphQLString },
         ownerId: { type: GraphQLString },
       },

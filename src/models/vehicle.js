@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const vehicleSchema = new Schema({
-  name: {
+  modelName: {
     type: String,
     required: true,
   },
